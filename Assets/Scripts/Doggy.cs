@@ -11,13 +11,14 @@ using UnityEngine.Video;
 public class Dog : MonoBehaviour
 {
     [SerializeField]
-    private float moveSpeed = 10f;
+    public float moveSpeed = 10f;
     
     public int maxHp;
     public int nowHp;
     public int atkDmg;
     public float atkSpeed = 1f;
     public bool attacked = false;
+    public bool death = false;
 
     public float jumpPower = 40f;
     bool inputJump = false;
@@ -29,6 +30,9 @@ public class Dog : MonoBehaviour
     void AttackFalse(){
         attacked = false;
     }
+
+    private bool isJumping = false;
+    
     public void SetAttackSpeed(float speed){
         animator.SetFloat("attackSpeed", speed);
         atkSpeed = speed;
@@ -39,14 +43,13 @@ public class Dog : MonoBehaviour
     private GameObject currentSkill;
     [SerializeField]
     private Transform AttackTransform;
-   
+    
 
     Animator animator;
 
     Rigidbody2D rigid2D;
 
     Collider2D col2D;
-    // Start is called before the first frame update
     void Start()
     {
         maxHp = 50;
@@ -59,57 +62,85 @@ public class Dog : MonoBehaviour
         col2D = GetComponent<Collider2D>();
         SetAttackSpeed(1.5f);
     }
+    bool inputRight = false;
+    bool inputLeft = false;
 
-    // Update is called once per frame
     void Update()
     {
+        if(death) return;
         nowHpbar.fillAmount = (float)nowHp / (float)maxHp;
-        // float horiznotalInput = Input.GetAxisRaw("Horizontal");
-        // float verticalInput = Input.GetAxisRaw("Vertical");
-        // Vector3 moveTo = new(horiznotalInput, 0f,0f);
-        // transform.position += moveSpeed * Time.deltaTime * moveTo;
-
-        float h = Input.GetAxis("Horizontal");
-        if(h>0){
+        //이동 입력 처리
+        if(Input.GetKey(KeyCode.RightArrow)){
+            inputRight = true;
             transform.localScale = new Vector3(1,1,1);
             animator.SetBool("moving",true);
-            transform.Translate(Vector3.right * Time.deltaTime * moveSpeed);
-
-        }
-        else if (h<0){
-            transform.localScale = new Vector3(-1,1,1);
+        }else if(Input.GetKey(KeyCode.LeftArrow)){
+            inputLeft = true;
+            transform.localScale=new Vector3(-1,1,1);
             animator.SetBool("moving",true);
-            transform.Translate(Vector3.left * Time.deltaTime * moveSpeed);
-        }
-        else animator.SetBool("moving",false);
-
+        }else animator.SetBool("moving",false);
+        // 공격 처리
         if(Input.GetKey(KeyCode.Z)&&!animator.GetCurrentAnimatorStateInfo(0).IsName("Attack")){
             animator.SetTrigger("attack");
             SpawnSkill();
 
             Debug.Log("Attack");
         }
-        if(Input.GetKeyDown(KeyCode.C)&&!animator.GetBool("jumping")){
+        // 점프 입력 처리
+        if (Input.GetKeyDown(KeyCode.C) && !isJumping) { // 점프 중이 아닐 때만 점프 입력을 받음
             inputJump = true;
         }
 
-        RaycastHit2D raycastHit = Physics2D.BoxCast(col2D.bounds.center,col2D.bounds.size,0f,Vector2.down,LayerMask.GetMask("ground"));
-        if(raycastHit.collider != null){
-            animator.SetBool("jumping",false);
+        // 바닥 체크
+        RaycastHit2D raycastHit = Physics2D.BoxCast(col2D.bounds.center, col2D.bounds.size, 1f, Vector2.down, LayerMask.GetMask("Ground"));
+        
+        if (raycastHit.collider != null) {
+            animator.SetBool("jumping", false);
+            isJumping = false; // 착지 시 점프 상태를 false로 설정
+        } else {
+            animator.SetBool("jumping", true);
         }
-        else animator.SetBool("jumping",true);
+        
     }
     void FixedUpdate(){
-        if(inputJump){
-            inputJump = false;
-            rigid2D.AddForce(Vector2.up*jumpPower);
+        Vector2 currentVelocity = rigid2D.velocity;
+        if (inputRight){
+            inputRight = false;
+            rigid2D.AddForce(Vector2.right * moveSpeed);
+        }
+        if (inputLeft)
+        {
+            inputLeft = false;
+            rigid2D.AddForce(Vector2.left * moveSpeed);
+        }
+        //점프 처리
+        if (inputJump && !isJumping) {
+        // 바닥에 있을 때만 점프 실행
+        if (Mathf.Abs(currentVelocity.y) < 0.001f) { // 바닥에 있을 때
+            inputJump = false; // 점프 입력을 초기화
+            isJumping = true; // 점프 중임을 표시
+            rigid2D.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse); // 점프 힘을 적용
         }
     }
+
+    // 중력 적용
+        currentVelocity.y += Physics2D.gravity.y * Time.fixedDeltaTime;  // 중력 효과 추가
+
+
+        if (rigid2D.velocity.x >= 2.5f) rigid2D.velocity = new Vector2(2.5f, rigid2D.velocity.y);
+        else if (rigid2D.velocity.x <= -2.5f) rigid2D.velocity = new Vector2(-2.5f, rigid2D.velocity.y);    }
     private void OnTriggerEnter2D(Collider2D other){
         if(other.gameObject.tag == "Enemy"){
             Enemy enemy = other.GetComponent<Enemy>();
             nowHp -= enemy.atkDmg;
             if(nowHp <= 0 ){
+                Destroy(gameObject);
+            }
+        }
+        if(other.gameObject.tag == "EnemyAttack"){
+            Attack attack = other.GetComponent<Attack>();
+            nowHp -= attack.EnemyAtkDmg;
+            if(nowHp <=0){
                 Destroy(gameObject);
             }
         }
@@ -134,4 +165,24 @@ public class Dog : MonoBehaviour
             currentSkill = null;
         }
     }
+
+    public void SetMoveSpeed(float speed){
+        moveSpeed = speed;
+    }
+    public float GetMoveSpeed(){
+        return moveSpeed;
+    }
+    public int GetNowHp(){
+        return nowHp;
+    }
+    public void SetnowHp(int hp){
+        nowHp = hp;
+    }
+    public float GetAttackSpeed(){
+        return atkSpeed;
+    }
+    public void SetAtkSpeed(float aspeed){
+        atkSpeed = aspeed;
+    }
 }
+
