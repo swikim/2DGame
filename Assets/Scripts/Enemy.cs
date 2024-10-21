@@ -69,7 +69,9 @@ public class Enemy : MonoBehaviour
             Attack attack = col.gameObject.GetComponent<Attack>();
             nowHp -= attack.damage;
             if(nowHp <= 0){
+                GameManager.Instance.SetClear();
                 Die();
+                
             }
         }
     }

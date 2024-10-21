@@ -17,6 +17,9 @@ public class MainCamera : MonoBehaviour
     }
     void LateUpdate()
     {
+        if(player == null){
+            return;
+        }
         // 목표 위치를 설정 (Player의 위치 + 오프셋)
         Vector3 desiredPosition = player.position + offset;
         float clampedX = Mathf.Clamp(desiredPosition.x,minLimit.x,maxLimit.x);
@@ -25,10 +28,11 @@ public class MainCamera : MonoBehaviour
         //제한된 좌표로 카메라 이동
         Vector3 clampedPosition = new Vector3(clampedX, clampedY, desiredPosition.z);
         // 카메라의 현재 위치에서 목표 위치로 부드럽게 이동
-        Vector3 smoothedPosition = Vector3.Lerp(transform.position, clampedPosition, smoothSpeed);
+        Vector3 smoothedPosition = Vector3.Lerp(player.position, clampedPosition, smoothSpeed);
         
         // 카메라 위치를 업데이트
         transform.position = smoothedPosition;
+        
 
         
     }
