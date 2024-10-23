@@ -5,37 +5,18 @@ using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour
 {
+    private Status status;
+    public UnitCode unitCode;
     public GameObject skillPrefab;
     private GameObject currentSkill;
 
     [SerializeField]
     private Transform AttackTransform;
     public GameObject prfHpBar;
-    public GameObject canvas;
+    public Canvas canvas;
 
     RectTransform hpBar;
-
-    public string enemyName;
-    public int maxHp;
-    public int nowHp;
-    public int atkDmg;
-    public float atkSpeed;
-    public float moveSpeed;
-    public float atkRange;
-    public float fieldOfVision;
-
-
-    private void SetEnemyStatus(string _enemyName,int _maxHp,int _atkDmg,float _atkSpeed,float _moveSpeed,float _atkRange,float _fieldOfVision)
-    {
-        enemyName = _enemyName;
-        maxHp = _maxHp;
-        nowHp = _maxHp;
-        atkDmg = _atkDmg;
-        atkSpeed = _atkSpeed;
-        moveSpeed = _moveSpeed;
-        atkRange = _atkRange;
-        fieldOfVision = _fieldOfVision;
-    }
+    public GameObject doggyG;
 
     public Dog doggy;
     Image nowHpbar;
@@ -46,13 +27,21 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         enemyAnimator = GetComponent<Animator>();
-        hpBar = Instantiate(prfHpBar,canvas.transform).GetComponent<RectTransform>();
-        if(name.Equals("Enemy1")){
-            SetEnemyStatus("Enemy1",100,10,1.5f,2,1.5f,7f);
+        if(canvas ==null){
+            canvas = GameObject.Find("canvas").GetComponent<Canvas>();
         }
+        if(doggy ==null){
+            doggy = GameObject.Find("Doggy").GetComponent<Dog>();
+        }
+        hpBar = Instantiate(prfHpBar,canvas.transform).GetComponent<RectTransform>();
+        
+        status = new Status();
+        status = status.SetUnitStatus(unitCode);
+
+        
         nowHpbar = hpBar.transform.GetChild(0).GetComponent<Image> ();
 
-        SetAttackSpeed(atkSpeed);
+        SetAttackSpeed(status.atkSpeed);
     }
 
     // Update is called once per frame
@@ -61,14 +50,14 @@ public class Enemy : MonoBehaviour
         Vector3 _hpBarPos = Camera.main.WorldToScreenPoint
             (new Vector3(transform.position.x, transform.position.y + height, 0));        
             hpBar.position = _hpBarPos;
-        nowHpbar.fillAmount = (float)nowHp/(float)maxHp;
+        nowHpbar.fillAmount = (float)status.nowHp/(float)status.maxHp;
     }
 
     private void OnTriggerEnter2D(Collider2D col){
         if(col.gameObject.tag == "Attack"){
             Attack attack = col.gameObject.GetComponent<Attack>();
-            nowHp -= attack.damage;
-            if(nowHp <= 0){
+            status.nowHp -= attack.damage;
+            if(status.nowHp <= 0){
                 GameManager.Instance.SetClear();
                 Die();
                 
@@ -85,14 +74,13 @@ public class Enemy : MonoBehaviour
     }
     void SetAttackSpeed(float speed){
         enemyAnimator.SetFloat("attackSpeed",speed);
-        atkSpeed = speed;
+        status.atkSpeed = speed;
     }
     
     public void SpawnSkill(){
         if(currentSkill == null){
             currentSkill = Instantiate(skillPrefab,AttackTransform.position,Quaternion.identity);
             currentSkill.tag = "EnemyAttack";
-            Debug.Log("spawnskillllll");
         }
         StartCoroutine(RemoveSkillAfterDelay(0.5f));
     }
@@ -102,6 +90,10 @@ public class Enemy : MonoBehaviour
         if(currentSkill != null){
             Destroy(currentSkill);
         }
+    }
+
+    public Status getStatus(){
+        return status;
     }
 
 }

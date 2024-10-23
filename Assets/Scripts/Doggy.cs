@@ -10,13 +10,14 @@ using UnityEngine.Video;
 
 public class Dog : MonoBehaviour
 {
+    private Enemy enemy;
+    private Status enemyStatus;
+    private Status doggyStatus;
+    public UnitCode unitCode;
     [SerializeField]
     public float moveSpeed = 10f;
     
-    public int maxHp;
-    public int nowHp;
-    public int atkDmg;
-    public float atkSpeed = 1f;
+    
     public bool attacked = false;
     public bool death = false;
 
@@ -35,7 +36,7 @@ public class Dog : MonoBehaviour
     
     public void SetAttackSpeed(float speed){
         animator.SetFloat("attackSpeed", speed);
-        atkSpeed = speed;
+        doggyStatus.atkSpeed = speed;
     }
     public GameObject doggy;
 
@@ -52,9 +53,9 @@ public class Dog : MonoBehaviour
     Collider2D col2D;
     void Start()
     {
-        maxHp = 50;
-        nowHp = 50;
-        atkDmg = 10;
+        doggyStatus = new Status();
+        doggyStatus = doggyStatus.SetUnitStatus(unitCode);
+        
 
         //transform.position = new Vector3(0, 0,0);
         animator = GetComponent<Animator>();
@@ -68,7 +69,7 @@ public class Dog : MonoBehaviour
     void Update()
     {
         if(death) return;
-        nowHpbar.fillAmount = (float)nowHp / (float)maxHp;
+        nowHpbar.fillAmount = (float)doggyStatus.nowHp / (float)doggyStatus.maxHp;
         //이동 입력 처리
         if(Input.GetKey(KeyCode.RightArrow)){
             inputRight = true;
@@ -132,15 +133,17 @@ public class Dog : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other){
         if(other.gameObject.tag == "Enemy"){
             Enemy enemy = other.GetComponent<Enemy>();
-            nowHp -= enemy.atkDmg;
-            if(nowHp <= 0 ){
+            enemyStatus = enemy.getStatus();
+
+            doggyStatus.nowHp -= enemyStatus.atkDmg;
+            if(doggyStatus.nowHp <= 0 ){
                 Destroy(gameObject);
             }
         }
         if(other.gameObject.tag == "EnemyAttack"){
             Attack attack = other.GetComponent<Attack>();
-            nowHp -= attack.EnemyAtkDmg;
-            if(nowHp <=0){
+            doggyStatus.nowHp -= attack.EnemyAtkDmg;
+            if(doggyStatus.nowHp <=0){
                 Destroy(gameObject);
             }
         }
@@ -173,16 +176,19 @@ public class Dog : MonoBehaviour
         return moveSpeed;
     }
     public int GetNowHp(){
-        return nowHp;
+        return doggyStatus.nowHp;
     }
     public void SetnowHp(int hp){
-        nowHp = hp;
+        doggyStatus.nowHp = hp;
     }
     public float GetAttackSpeed(){
-        return atkSpeed;
+        return doggyStatus.atkSpeed;
     }
-    public void SetAtkSpeed(float aspeed){
-        atkSpeed = aspeed;
+    public void SetAtkSpeed(float atkspeed){
+        doggyStatus.atkSpeed = atkspeed;
+    }
+    public Status GetStatus(){
+        return doggyStatus;
     }
 }
 

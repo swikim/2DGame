@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "696891836853",
+    "firebase_url": "https://portfolio-84caf-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "portfolio-84caf",
+    "storage_bucket": "portfolio-84caf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:696891836853:android:8bdc05ef1830ad86c1f1fc",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.Portfolio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA33S5cW_WtmZszOrGqn3JoKTlyaCjinjI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
