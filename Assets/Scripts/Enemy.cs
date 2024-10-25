@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class Enemy : MonoBehaviour
 {
     private Status status;
+    public bool isDead = false;
+    public Vector3 spawnVector;
     public UnitCode unitCode;
     public GameObject skillPrefab;
     private GameObject currentSkill;
@@ -38,8 +40,9 @@ public class Enemy : MonoBehaviour
         status = new Status();
         status = status.SetUnitStatus(unitCode);
 
-        
         nowHpbar = hpBar.transform.GetChild(0).GetComponent<Image> ();
+
+        spawnVector = transform.position;
 
         SetAttackSpeed(status.atkSpeed);
     }
@@ -69,8 +72,12 @@ public class Enemy : MonoBehaviour
         GetComponent<EnemyAI>().enabled = false;
         GetComponent<Collider2D>().enabled = false;
         Destroy(GetComponent<Rigidbody2D>());
-        Destroy(gameObject, 2);
-        Destroy(hpBar.gameObject, 2);
+        Destroy(gameObject, 1);
+        Destroy(hpBar.gameObject, 1);
+        isDead = true;
+        EnemySpawnser.Instance.OnEnemyDeath(this);
+
+        
     }
     void SetAttackSpeed(float speed){
         enemyAnimator.SetFloat("attackSpeed",speed);

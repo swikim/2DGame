@@ -25,23 +25,26 @@ public class Dog : MonoBehaviour
     bool inputJump = false;
 
     public UnityEngine.UI.Image nowHpbar;
+    public float interactRange = 2f;
     void AttackTrue(){
         attacked = true;
     }
     void AttackFalse(){
         attacked = false;
     }
-
     private bool isJumping = false;
-    
+
+    Vector3 dirVec;    
     public void SetAttackSpeed(float speed){
         animator.SetFloat("attackSpeed", speed);
         doggyStatus.atkSpeed = speed;
     }
+    public GameManager gameManager;
     public GameObject doggy;
-
     public GameObject skillPrefab;   // 스킬 프리팹을 연결할 변수
     private GameObject currentSkill;
+    GameObject scanObject;
+
     [SerializeField]
     private Transform AttackTransform;
     
@@ -61,6 +64,9 @@ public class Dog : MonoBehaviour
         animator = GetComponent<Animator>();
         rigid2D = GetComponent<Rigidbody2D>();
         col2D = GetComponent<Collider2D>();
+        if(gameManager ==null){
+            gameManager = FindAnyObjectByType<GameManager>();
+        }
         SetAttackSpeed(1.5f);
     }
     bool inputRight = false;
@@ -71,14 +77,16 @@ public class Dog : MonoBehaviour
         if(death) return;
         nowHpbar.fillAmount = (float)doggyStatus.nowHp / (float)doggyStatus.maxHp;
         //이동 입력 처리
-        if(Input.GetKey(KeyCode.RightArrow)){
+        if(Input.GetKey(KeyCode.RightArrow)&&!gameManager.isAction){
             inputRight = true;
+            animator.SetBool("moving",true);
             transform.localScale = new Vector3(1,1,1);
-            animator.SetBool("moving",true);
-        }else if(Input.GetKey(KeyCode.LeftArrow)){
+            dirVec = Vector3.right;
+        }else if(Input.GetKey(KeyCode.LeftArrow)&&!gameManager.isAction){
             inputLeft = true;
-            transform.localScale=new Vector3(-1,1,1);
             animator.SetBool("moving",true);
+            transform.localScale=new Vector3(-1,1,1);
+            dirVec = Vector3.left;
         }else animator.SetBool("moving",false);
         // 공격 처리
         if(Input.GetKey(KeyCode.Z)&&!animator.GetCurrentAnimatorStateInfo(0).IsName("Attack")){
@@ -91,7 +99,12 @@ public class Dog : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.C) && !isJumping) { // 점프 중이 아닐 때만 점프 입력을 받음
             inputJump = true;
         }
-
+        // 대화 입력 처리
+        if(Input.GetKeyDown(KeyCode.E)&&scanObject != null){
+            gameManager.Action(scanObject);
+            Debug.Log("npc"+scanObject.name);
+            
+        }
         // 바닥 체크
         RaycastHit2D raycastHit = Physics2D.BoxCast(col2D.bounds.center, col2D.bounds.size, 1f, Vector2.down, LayerMask.GetMask("Ground"));
         
@@ -101,6 +114,7 @@ public class Dog : MonoBehaviour
         } else {
             animator.SetBool("jumping", true);
         }
+        Debug.DrawRay(transform.position, dirVec * 1f, Color.green);
         
     }
     void FixedUpdate(){
@@ -123,13 +137,21 @@ public class Dog : MonoBehaviour
             rigid2D.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse); // 점프 힘을 적용
         }
     }
-
     // 중력 적용
         currentVelocity.y += Physics2D.gravity.y * Time.fixedDeltaTime;  // 중력 효과 추가
 
 
         if (rigid2D.velocity.x >= 2.5f) rigid2D.velocity = new Vector2(2.5f, rigid2D.velocity.y);
-        else if (rigid2D.velocity.x <= -2.5f) rigid2D.velocity = new Vector2(-2.5f, rigid2D.velocity.y);    }
+        else if (rigid2D.velocity.x <= -2.5f) rigid2D.velocity = new Vector2(-2.5f, rigid2D.velocity.y);   
+
+        RaycastHit2D raycastHit = Physics2D.Raycast(transform.position,dirVec,1.0f,LayerMask.GetMask("Object"));
+        if(raycastHit.collider != null){
+            scanObject = raycastHit.collider.gameObject;
+        }
+        else{
+            scanObject = null;
+        }
+     }
     private void OnTriggerEnter2D(Collider2D other){
         if(other.gameObject.tag == "Enemy"){
             Enemy enemy = other.GetComponent<Enemy>();
@@ -190,5 +212,7 @@ public class Dog : MonoBehaviour
     public Status GetStatus(){
         return doggyStatus;
     }
+
+    
 }
 

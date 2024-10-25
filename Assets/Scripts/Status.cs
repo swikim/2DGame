@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Status : MonoBehaviour
+public class Status
 {
     public UnitCode unitCode { get; } // 바꿀 수 없게 get만
     public string name { get; set; }
@@ -42,7 +42,7 @@ public class Status : MonoBehaviour
                 status = new Status(unitCode, "doggy", 50, 10, 1f, 8f, 0, 0);
                 break;
             case UnitCode.enemy1:
-                status = new Status(unitCode, "Enemy1", 100, 10, 1.5f, 2f, 1.5f, 7f);
+                status = new Status(unitCode, "Enemy1", 100, 3, 1.5f, 2f, 1.5f, 7f);
                 break;
             case UnitCode.enemy2:
                 status = new Status(unitCode,"enemy2",100, 10, 1.5f, 2f, 1.5f, 7f);
