@@ -50,8 +50,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e7ade5bed7e04ddfb71ffae88800e1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDead: 0
+  spawnVector: {x: 0, y: 0, z: 0}
   unitCode: 1
   skillPrefab: {fileID: 866591411665311615, guid: 6c61530a0e1d4492e9e7ad74b2330448, type: 3}
+  gold: {fileID: 7202321373078680080, guid: 7b8ae139257414ff28dfaa97a5367641, type: 3}
   AttackTransform: {fileID: 8457697575529421649}
   prfHpBar: {fileID: 8369621152188826877, guid: 254d09fd3c3c34478a97408001c9c3a8, type: 3}
   canvas: {fileID: 0}

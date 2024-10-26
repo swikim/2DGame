@@ -23,8 +23,11 @@ public class GameManager : MonoBehaviour
     private GameObject gameOverPanel;
     [SerializeField]
     private GameObject gameClearPanel;
+    [SerializeField]
+    private GameObject notEnoughGoldPanel;
     
     public int talkIndex = 0;
+    public int gold = 0;
 
     void Awake(){
         if(Instance == null){
@@ -52,6 +55,9 @@ public class GameManager : MonoBehaviour
    public void PlayAgain(){
         SceneManager.LoadScene("SampleScene");
     }
+    public void ShowNotEough(){
+        notEnoughGoldPanel.SetActive(true);
+    }
 
     public void Action(GameObject scanobj){
         scanObject = scanobj;
@@ -75,6 +81,9 @@ public class GameManager : MonoBehaviour
         }
         isAction = true;
         talkIndex++;
+    }
+    public void IncreaseGold(){
+        gold ++;
     }
 
 }

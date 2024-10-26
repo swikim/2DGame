@@ -11,6 +11,8 @@ public class Enemy : MonoBehaviour
     public UnitCode unitCode;
     public GameObject skillPrefab;
     private GameObject currentSkill;
+    [SerializeField]
+    private GameObject gold;
 
     [SerializeField]
     private Transform AttackTransform;
@@ -61,7 +63,7 @@ public class Enemy : MonoBehaviour
             Attack attack = col.gameObject.GetComponent<Attack>();
             status.nowHp -= attack.damage;
             if(status.nowHp <= 0){
-                GameManager.Instance.SetClear();
+                //GameManager.Instance.SetClear();
                 Die();
                 
             }
@@ -76,6 +78,7 @@ public class Enemy : MonoBehaviour
         Destroy(hpBar.gameObject, 1);
         isDead = true;
         EnemySpawnser.Instance.OnEnemyDeath(this);
+        Instantiate(gold,transform.position,Quaternion.identity);
 
         
     }

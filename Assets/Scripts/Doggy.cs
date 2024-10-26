@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using TMPro;
 
 public class Dog : MonoBehaviour
 {
@@ -21,8 +23,10 @@ public class Dog : MonoBehaviour
     public bool attacked = false;
     public bool death = false;
 
-    public float jumpPower = 40f;
+    private bool isTouchingPortal = false;    
+     public float jumpPower = 40f;
     bool inputJump = false;
+    int jumpCount = 0;
 
     public UnityEngine.UI.Image nowHpbar;
     public float interactRange = 2f;
@@ -96,24 +100,42 @@ public class Dog : MonoBehaviour
             Debug.Log("Attack");
         }
         // 점프 입력 처리
-        if (Input.GetKeyDown(KeyCode.C) && !isJumping) { // 점프 중이 아닐 때만 점프 입력을 받음
+         if (Input.GetKeyDown(KeyCode.C) && !isJumping) { // 점프 중이 아닐 때만 점프 입력을 받음
             inputJump = true;
+            jumpCount++;
+        }
+        if(Input.GetKeyDown(KeyCode.X)&&isJumping){
+            if(jumpCount<1){
+                jumpCount++; 
+                DoubleJump();
+            }
         }
         // 대화 입력 처리
         if(Input.GetKeyDown(KeyCode.E)&&scanObject != null){
             gameManager.Action(scanObject);
             Debug.Log("npc"+scanObject.name);
-            
         }
+        if(Input.GetKeyDown(KeyCode.E)&&isTouchingPortal){
+            if(gameManager.gold >10){
+                SceneManager.LoadScene("SecondScene");
+            }else{
+                gameManager.ShowNotEough();
+            }
+        }
+           
         // 바닥 체크
-        RaycastHit2D raycastHit = Physics2D.BoxCast(col2D.bounds.center, col2D.bounds.size, 1f, Vector2.down, LayerMask.GetMask("Ground"));
-        
-        if (raycastHit.collider != null) {
+        Collider2D[] hitColliders = Physics2D.OverlapBoxAll(col2D.bounds.center, col2D.bounds.size, 0f, LayerMask.GetMask("Ground"));
+
+        if (hitColliders.Length > 0) {
             animator.SetBool("jumping", false);
             isJumping = false; // 착지 시 점프 상태를 false로 설정
+            jumpCount = 0;
+            Debug.Log(hitColliders[0].name);
         } else {
             animator.SetBool("jumping", true);
         }
+
+        
         Debug.DrawRay(transform.position, dirVec * 1f, Color.green);
         
     }
@@ -131,18 +153,19 @@ public class Dog : MonoBehaviour
         //점프 처리
         if (inputJump && !isJumping) {
         // 바닥에 있을 때만 점프 실행
-        if (Mathf.Abs(currentVelocity.y) < 0.001f) { // 바닥에 있을 때
-            inputJump = false; // 점프 입력을 초기화
-            isJumping = true; // 점프 중임을 표시
-            rigid2D.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse); // 점프 힘을 적용
+            if (Mathf.Abs(currentVelocity.y) < 0.001f) { // 바닥에 있을 때
+                inputJump = false; // 점프 입력을 초기화
+                isJumping = true; // 점프 중임을 표시
+                rigid2D.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse); // 점프 힘을 적용
+            }
+        
         }
-    }
     // 중력 적용
         currentVelocity.y += Physics2D.gravity.y * Time.fixedDeltaTime;  // 중력 효과 추가
 
 
         if (rigid2D.velocity.x >= 2.5f) rigid2D.velocity = new Vector2(2.5f, rigid2D.velocity.y);
-        else if (rigid2D.velocity.x <= -2.5f) rigid2D.velocity = new Vector2(-2.5f, rigid2D.velocity.y);   
+        else if (rigid2D.velocity.x <= -2.5f) rigid2D.velocity = new Vector2(-2.5f, rigid2D.velocity.y); 
 
         RaycastHit2D raycastHit = Physics2D.Raycast(transform.position,dirVec,1.0f,LayerMask.GetMask("Object"));
         if(raycastHit.collider != null){
@@ -168,6 +191,16 @@ public class Dog : MonoBehaviour
             if(doggyStatus.nowHp <=0){
                 Destroy(gameObject);
             }
+        }
+        if(other.gameObject.tag == "Potal"){
+            Debug.Log("Touched");
+            isTouchingPortal = true;
+        }
+    }
+    private void OnCollisionEnter2D(Collision2D col){
+        if(col.gameObject.tag == "Gold"){
+            gameManager.IncreaseGold();
+            Destroy(col.gameObject);
         }
     }
     void SpawnSkill(){
@@ -213,6 +246,10 @@ public class Dog : MonoBehaviour
         return doggyStatus;
     }
 
-    
+    void DoubleJump(){
+        Vector2 jumpVelocity = Vector2.up*jumpPower;
+        jumpVelocity.x = transform.localScale.x;
+        rigid2D.AddForce(jumpVelocity,ForceMode2D.Impulse);
+    }
 }
 

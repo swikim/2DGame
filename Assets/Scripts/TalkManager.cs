@@ -18,6 +18,7 @@ public class TalkManager : MonoBehaviour
     {
         talkData.Add(1000,new string[]{"안녕","집가고 싶어?"});
         //talkData.Add(100,new string[]{"평범한 문이다."});
+        talkData.Add(100,new string[]{"골드가 부족합니다."});
     }
     public string GetTalk(int id,int talkIndex){
         if(talkIndex ==talkData[id].Length){
