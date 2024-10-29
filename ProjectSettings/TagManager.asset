@@ -9,6 +9,7 @@ TagManager:
   - EnemyAttack
   - Potal
   - Gold
+  - FieldItem
   layers:
   - Default
   - TransparentFX

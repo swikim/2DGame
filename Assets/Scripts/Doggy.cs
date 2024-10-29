@@ -9,6 +9,7 @@ using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.UI;
 using UnityEngine.Video;
 using TMPro;
+using UnityEditor.Experimental.GraphView;
 
 public class Dog : MonoBehaviour
 {
@@ -18,8 +19,7 @@ public class Dog : MonoBehaviour
     public UnitCode unitCode;
     [SerializeField]
     public float moveSpeed = 10f;
-    
-    
+    private float minY = -15f;
     public bool attacked = false;
     public bool death = false;
 
@@ -124,17 +124,20 @@ public class Dog : MonoBehaviour
         }
            
         // 바닥 체크
-        Collider2D[] hitColliders = Physics2D.OverlapBoxAll(col2D.bounds.center, col2D.bounds.size, 0f, LayerMask.GetMask("Ground"));
-
+        Collider2D[] hitColliders = Physics2D.OverlapBoxAll(col2D.bounds.center, col2D.bounds.size, 0f, LayerMask.GetMask("Ground","Object"));
         if (hitColliders.Length > 0) {
             animator.SetBool("jumping", false);
             isJumping = false; // 착지 시 점프 상태를 false로 설정
             jumpCount = 0;
-            Debug.Log(hitColliders[0].name);
         } else {
             animator.SetBool("jumping", true);
         }
 
+        if(transform.position.y<minY){
+            Destroy(gameObject);
+            GameManager.Instance.ShowGameOverPanel();
+        }
+        
         
         Debug.DrawRay(transform.position, dirVec * 1f, Color.green);
         

@@ -47,6 +47,9 @@ public class Status
             case UnitCode.enemy2:
                 status = new Status(unitCode,"enemy2",100, 10, 1.5f, 2f, 1.5f, 7f);
                 break;
+            case UnitCode.boss:
+                status = new Status(unitCode,"boss",100, 10, 1.5f, 2f, 1.5f, 14f);
+                break;
         }
         return status;
     }

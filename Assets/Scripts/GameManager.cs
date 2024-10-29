@@ -54,6 +54,7 @@ public class GameManager : MonoBehaviour
     }
    public void PlayAgain(){
         SceneManager.LoadScene("SampleScene");
+        Debug.Log("onclicked");
     }
     public void ShowNotEough(){
         notEnoughGoldPanel.SetActive(true);

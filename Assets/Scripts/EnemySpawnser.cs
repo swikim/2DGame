@@ -11,7 +11,7 @@ public class EnemySpawnser : MonoBehaviour
     Status enemyStatus;
 
     public Canvas canvas;
-    private float[] arrPosx = {1f,3f};
+    private float[] arrPosx = {1f,3f,5f};
     [SerializeField]
     private GameObject[] enemies;
     [SerializeField]

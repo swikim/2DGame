@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using TreeEditor;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour
 {
-    private Status status;
+    public Status status;
     public bool isDead = false;
     public Vector3 spawnVector;
     public UnitCode unitCode;
@@ -24,8 +26,10 @@ public class Enemy : MonoBehaviour
 
     public Dog doggy;
     Image nowHpbar;
+    private bool hasExecuted = false;
 
     public float height =1.7f;
+    private float minY = -15f;
     public Animator enemyAnimator;
 
     void Start()
@@ -47,6 +51,8 @@ public class Enemy : MonoBehaviour
         spawnVector = transform.position;
 
         SetAttackSpeed(status.atkSpeed);
+
+        
     }
 
     // Update is called once per frame
@@ -55,7 +61,14 @@ public class Enemy : MonoBehaviour
         Vector3 _hpBarPos = Camera.main.WorldToScreenPoint
             (new Vector3(transform.position.x, transform.position.y + height, 0));        
             hpBar.position = _hpBarPos;
-        nowHpbar.fillAmount = (float)status.nowHp/(float)status.maxHp;
+            nowHpbar.fillAmount = (float)status.nowHp/(float)status.maxHp;
+
+        if(!hasExecuted){
+            if(transform.position.y < minY){
+                Die();
+                hasExecuted = true;
+            }
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D col){
@@ -79,9 +92,8 @@ public class Enemy : MonoBehaviour
         isDead = true;
         EnemySpawnser.Instance.OnEnemyDeath(this);
         Instantiate(gold,transform.position,Quaternion.identity);
-
-        
     }
+    
     void SetAttackSpeed(float speed){
         enemyAnimator.SetFloat("attackSpeed",speed);
         status.atkSpeed = speed;

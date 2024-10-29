@@ -6,5 +6,6 @@ using UnityEngine;
 public enum UnitCode{
     doggy,
     enemy1,
-    enemy2
+    enemy2,
+    boss
 }
