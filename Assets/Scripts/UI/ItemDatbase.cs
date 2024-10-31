@@ -6,9 +6,16 @@ using UnityEngine;
 
 public class ItemDatbase : MonoBehaviour
 {
-    // Start is called before the first frame update
+    
     public static ItemDatbase instance;
-
+    private void Awake(){
+            if(instance == null){
+                instance = this;
+                DontDestroyOnLoad(gameObject);
+            }else{
+                Destroy(gameObject);
+            }
+        }
     void Start(){
         instance = this;
     }

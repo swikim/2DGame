@@ -8,6 +8,7 @@ public class Slot : MonoBehaviour,IPointerUpHandler
     public int slotnum;
     public Item item;
     public Image itemIcon;  
+    private bool isPointerUpExecuted = false;
     
 
     public void UpdateSlotUI(){
@@ -23,6 +24,10 @@ public class Slot : MonoBehaviour,IPointerUpHandler
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (item == null || Inventory.Instance == null){
+            Debug.LogWarning("Item 또는 Inventory가 null입니다.");
+            return;
+        }
         bool isUse = item.Use();
         Debug.Log("used");
         if(isUse){

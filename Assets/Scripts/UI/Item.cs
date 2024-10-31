@@ -19,6 +19,7 @@ public class Item
         bool isUsed = false;
         foreach(ItemEffect eft in efts) {
             if (eft.ExecuteRole()) {
+                Debug.Log("item,bool use");
                 isUsed = true;
             }
         }

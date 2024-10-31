@@ -10,6 +10,8 @@ TagManager:
   - Potal
   - Gold
   - FieldItem
+  - NPC
+  - Boss
   layers:
   - Default
   - TransparentFX

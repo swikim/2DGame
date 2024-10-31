@@ -58,8 +58,13 @@ public class Dog : MonoBehaviour
     Rigidbody2D rigid2D;
 
     Collider2D col2D;
+    
+    
     void Start()
     {
+        if(gameManager==null){
+            gameManager = FindObjectOfType<GameManager>();
+        }
         doggyStatus = new Status();
         doggyStatus = doggyStatus.SetUnitStatus(unitCode);
         
@@ -97,7 +102,7 @@ public class Dog : MonoBehaviour
             animator.SetTrigger("attack");
             SpawnSkill();
 
-            Debug.Log("Attack");
+            //Debug.Log("Attack");
         }
         // 점프 입력 처리
          if (Input.GetKeyDown(KeyCode.C) && !isJumping) { // 점프 중이 아닐 때만 점프 입력을 받음
@@ -115,9 +120,10 @@ public class Dog : MonoBehaviour
             gameManager.Action(scanObject);
             Debug.Log("npc"+scanObject.name);
         }
-        if(Input.GetKeyDown(KeyCode.E)&&isTouchingPortal){
-            if(gameManager.gold >10){
+        if(Input.GetKeyDown(KeyCode.UpArrow)&&isTouchingPortal){
+            if(gameManager.gold >=1){
                 SceneManager.LoadScene("SecondScene");
+                transform.position = new Vector3(-14, -2, 0);
             }else{
                 gameManager.ShowNotEough();
             }

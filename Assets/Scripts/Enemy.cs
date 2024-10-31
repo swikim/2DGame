@@ -52,12 +52,12 @@ public class Enemy : MonoBehaviour
 
         SetAttackSpeed(status.atkSpeed);
 
-        
     }
 
     // Update is called once per frame
     void Update()
     {
+        
         Vector3 _hpBarPos = Camera.main.WorldToScreenPoint
             (new Vector3(transform.position.x, transform.position.y + height, 0));        
             hpBar.position = _hpBarPos;
@@ -72,13 +72,16 @@ public class Enemy : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D col){
-        if(col.gameObject.tag == "Attack"){
+        if(col.gameObject.CompareTag("Attack"))
+        {
             Attack attack = col.gameObject.GetComponent<Attack>();
             status.nowHp -= attack.damage;
+            Debug.Log(gameObject.tag+"ㄹㅇㅇ");
             if(status.nowHp <= 0){
-                //GameManager.Instance.SetClear();
-                Die();
-                
+                if(gameObject.CompareTag("Boss"))
+                {
+                    BossDie();
+                }else Die();
             }
         }
     }
@@ -92,6 +95,16 @@ public class Enemy : MonoBehaviour
         isDead = true;
         EnemySpawnser.Instance.OnEnemyDeath(this);
         Instantiate(gold,transform.position,Quaternion.identity);
+    }
+    void BossDie(){
+        enemyAnimator.SetTrigger("die");
+        GetComponent<EnemyAI>().enabled = false;
+        GetComponent<Collider2D>().enabled = false;
+        Destroy(GetComponent<Rigidbody2D>());
+        Destroy(gameObject, 1);
+        Destroy(hpBar.gameObject, 1);
+        isDead = true;
+        GameManager.Instance.SetClear();
     }
     
     void SetAttackSpeed(float speed){

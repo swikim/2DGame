@@ -14,6 +14,7 @@ public class MainCamera : MonoBehaviour
 
     void Start(){
         offset = transform.position - player.position;
+        player = FindObjectOfType<Dog>().transform;
     }
     void LateUpdate()
     {

@@ -16,14 +16,16 @@ public class EnemyAI : MonoBehaviour
     void Start()
     {
         enemy = GetComponent<Enemy>();
-        doggy = GetComponent<Dog>();
+        doggy = FindObjectOfType<Dog>();
         enemyAnimator = enemy.enemyAnimator;
         enemyStatus = enemy.getStatus();
+        target = doggy.transform;
     }
 
     // Update is called once per frame
     void Update()
     {
+        //target = FindObjectOfType<Dog>().transform;
         if (target == null || target.GetComponent<Dog>()==null){
             GameManager.Instance.ShowGameOverPanel();
             return;
@@ -65,7 +67,7 @@ public class EnemyAI : MonoBehaviour
         dir = (dir<0)?-1:1;
         transform.Translate(new Vector2(dir,0)*enemyStatus.moveSpeed*Time.deltaTime);
         enemyAnimator.SetBool("moving",true);
-        Debug.Log("moveTotarget");
+        //Debug.Log("moveTotarget");
     }
     void FaceTarget(){
         if(target.position.x - transform.position.x < 0){
@@ -73,7 +75,7 @@ public class EnemyAI : MonoBehaviour
         }else{ //오른쪽에 있을 때
             transform.localScale = new Vector3(1,1,1);
         }
-                Debug.Log("faceTotarget");
+                //Debug.Log("faceTotarget");
 
     }
     void AttackTarget(){
@@ -81,7 +83,7 @@ public class EnemyAI : MonoBehaviour
         doggyStatus.nowHp -= enemyStatus.atkDmg;
         enemyAnimator.SetTrigger("attack"); 
         attackDelay = enemyStatus.atkSpeed;
-        Debug.Log("Attakc Player");
+        //Debug.Log("Attakc Player");
         enemy.SpawnSkill();
     }
 }

@@ -9,6 +9,7 @@ public class AuthManager : MonoBehaviour
 
     [SerializeField]
     TMP_InputField emailField;
+    public string Email;
     [SerializeField]
     TMP_InputField passwordField;
 
@@ -18,6 +19,7 @@ public class AuthManager : MonoBehaviour
         auth = Firebase.Auth.FirebaseAuth.DefaultInstance;
     }
     public void SignIn(){
+        Email = emailField.text;
         auth.CreateUserWithEmailAndPasswordAsync(emailField.text,passwordField.text).ContinueWith(task=>{
             if(task.IsCanceled){
                 Debug.LogError("회원가입 취소");
