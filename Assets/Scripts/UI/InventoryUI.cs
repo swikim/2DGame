@@ -5,11 +5,20 @@ using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
+    private static InventoryUI Instance;
     Inventory inventory;
     public GameObject inventoryPanel;
     bool actInventory = false;
     public Slot[] slots;
     public Transform slotHolder;
+    private void Awake(){
+        if(Instance!=null){
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
     void Start(){
         inventory = Inventory.Instance;
         slots = slotHolder.GetComponentsInChildren<Slot>();

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 703405893757644508}
   - component: {fileID: 5834156486486829076}
   - component: {fileID: 8301550111152141987}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Enemy1
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -51,6 +51,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isDead: 0
+  hurt: 0
   spawnVector: {x: 0, y: 0, z: 0}
   unitCode: 1
   skillPrefab: {fileID: 866591411665311615, guid: 6c61530a0e1d4492e9e7ad74b2330448, type: 3}
@@ -167,7 +168,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8457697575529421649}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: AttackTransform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -200,7 +201,7 @@ GameObject:
   - component: {fileID: 6890819053182261458}
   - component: {fileID: 6332117474890539885}
   - component: {fileID: 705325272214795002}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RatEnemy1
   m_TagString: Enemy
   m_Icon: {fileID: 0}

@@ -35,6 +35,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 6775337582690193311}
   - {fileID: 7785148713705858924}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -127,13 +128,16 @@ MonoBehaviour:
   moveSpeed: 10
   attacked: 0
   death: 0
+  hurt: 0
   jumpPower: 5
   nowHpbar: {fileID: 0}
   interactRange: 2
   gameManager: {fileID: 0}
   doggy: {fileID: 972279299040971214}
   skillPrefab: {fileID: 68711003540502374, guid: 511d82f472a18409c9533adb380a6a7f, type: 3}
+  jumpEffect: {fileID: 0}
   AttackTransform: {fileID: 7785148713705858924}
+  JumpTransform: {fileID: 0}
 --- !u!61 &4026363455087659843
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -219,6 +223,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   items: []
+--- !u!1 &2253105969656135260
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6775337582690193311}
+  m_Layer: 0
+  m_Name: JumpTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6775337582690193311
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2253105969656135260}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.418, y: -0.434, z: 0.2877851}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4050152617240768424}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6263707429252707957
 GameObject:
   m_ObjectHideFlags: 0

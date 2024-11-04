@@ -11,6 +11,7 @@ public class DialogueSystem : MonoBehaviour
     private Queue<string> dialogueQueue = new Queue<string>();
 
     
+    
     public void Initialize(DialogueContainer dialogue){
         dialogueQueue.Clear();
 

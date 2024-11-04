@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using JetBrains.Annotations;
-using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -9,22 +8,22 @@ using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.UI;
 using UnityEngine.Video;
 using TMPro;
-using UnityEditor.Experimental.GraphView;
 
 public class Dog : MonoBehaviour
 {
     private Enemy enemy;
     private Status enemyStatus;
-    private Status doggyStatus;
+    public Status doggyStatus;
     public UnitCode unitCode;
     [SerializeField]
     public float moveSpeed = 10f;
     private float minY = -15f;
     public bool attacked = false;
     public bool death = false;
+    public bool hurt = false;
 
     private bool isTouchingPortal = false;    
-     public float jumpPower = 40f;
+    public float jumpPower = 40f;
     bool inputJump = false;
     int jumpCount = 0;
 
@@ -36,6 +35,15 @@ public class Dog : MonoBehaviour
     void AttackFalse(){
         attacked = false;
     }
+    void HurtTrue(){
+        hurt = true;
+    }
+    void HurtFalse(){
+        hurt = false;
+    }
+    void DeathTrue(){
+        death = true;
+    }
     private bool isJumping = false;
 
     Vector3 dirVec;    
@@ -45,12 +53,16 @@ public class Dog : MonoBehaviour
     }
     public GameManager gameManager;
     public GameObject doggy;
-    public GameObject skillPrefab;   // 스킬 프리팹을 연결할 변수
+    public GameObject skillPrefab;   
     private GameObject currentSkill;
+    public GameObject jumpEffect;
+    private GameObject currentJumpEffect;
     GameObject scanObject;
 
     [SerializeField]
     private Transform AttackTransform;
+    [SerializeField]
+    private Transform JumpTransform;
     
 
     Animator animator;
@@ -59,7 +71,14 @@ public class Dog : MonoBehaviour
 
     Collider2D col2D;
     
-    
+    private void Awake(){
+        GameObject[] objs = GameObject.FindGameObjectsWithTag("Player");
+
+        if(objs.Length>1) Destroy(gameObject);
+        else DontDestroyOnLoad(gameObject);
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
     void Start()
     {
         if(gameManager==null){
@@ -83,7 +102,10 @@ public class Dog : MonoBehaviour
 
     void Update()
     {
-        if(death) return;
+         if(doggyStatus.nowHp<=0){
+            GameManager.Instance.ShowGameOverPanel();
+            return;
+        }
         nowHpbar.fillAmount = (float)doggyStatus.nowHp / (float)doggyStatus.maxHp;
         //이동 입력 처리
         if(Input.GetKey(KeyCode.RightArrow)&&!gameManager.isAction){
@@ -121,16 +143,20 @@ public class Dog : MonoBehaviour
             Debug.Log("npc"+scanObject.name);
         }
         if(Input.GetKeyDown(KeyCode.UpArrow)&&isTouchingPortal){
+            Debug.Log(gameManager.gold);
             if(gameManager.gold >=1){
                 SceneManager.LoadScene("SecondScene");
-                transform.position = new Vector3(-14, -2, 0);
+                transform.position = new Vector3(-14, 2, 0);
             }else{
                 gameManager.ShowNotEough();
             }
         }
+        if(Input.GetKeyDown(KeyCode.Escape)){
+            gameManager.QuitGame();
+        }
            
         // 바닥 체크
-        Collider2D[] hitColliders = Physics2D.OverlapBoxAll(col2D.bounds.center, col2D.bounds.size, 0f, LayerMask.GetMask("Ground","Object"));
+        Collider2D[] hitColliders = Physics2D.OverlapBoxAll(col2D.bounds.center, col2D.bounds.size, 0f, LayerMask.GetMask("Ground","Object","Enemy"));
         if (hitColliders.Length > 0) {
             animator.SetBool("jumping", false);
             isJumping = false; // 착지 시 점프 상태를 false로 설정
@@ -197,8 +223,11 @@ public class Dog : MonoBehaviour
         if(other.gameObject.tag == "EnemyAttack"){
             Attack attack = other.GetComponent<Attack>();
             doggyStatus.nowHp -= attack.EnemyAtkDmg;
+            animator.SetTrigger("hurt");
             if(doggyStatus.nowHp <=0){
-                Destroy(gameObject);
+                animator.SetTrigger("die");
+                return;
+                //Destroy(gameObject);
             }
         }
         if(other.gameObject.tag == "Potal"){
@@ -212,6 +241,14 @@ public class Dog : MonoBehaviour
             Destroy(col.gameObject);
         }
     }
+    private void OnTriggerExit2D(Collider2D other)
+{
+    if (other.gameObject.tag == "Potal")
+    {
+        Debug.Log("Left the Portal");
+        isTouchingPortal = false;
+    }
+}
     void SpawnSkill(){
             if(currentSkill == null){
 
@@ -230,6 +267,19 @@ public class Dog : MonoBehaviour
         {
             Destroy(currentSkill);
             currentSkill = null;
+        }
+    }
+    void DoubleJumpEffect(){
+        if(currentJumpEffect == null){
+            currentJumpEffect = Instantiate(jumpEffect,JumpTransform.position,Quaternion.identity);
+        }
+        StartCoroutine(RemoveJumpEffectAfterDelay(0.5f));
+    }
+    IEnumerator RemoveJumpEffectAfterDelay(float v){
+        yield return new WaitForSeconds(v);
+        if(currentJumpEffect != null){
+            Destroy(currentJumpEffect);
+            currentJumpEffect = null;
         }
     }
 
@@ -259,6 +309,12 @@ public class Dog : MonoBehaviour
         Vector2 jumpVelocity = Vector2.up*jumpPower;
         jumpVelocity.x = transform.localScale.x;
         rigid2D.AddForce(jumpVelocity,ForceMode2D.Impulse);
+        DoubleJumpEffect();
     }
+    private void OnSceneLoaded(Scene scene,LoadSceneMode loadSceneMode){
+        GameObject hpBar = GameObject.Find("hp_bar");
+        nowHpbar = hpBar.GetComponent<UnityEngine.UI.Image>();
+    }
+   
 }
 

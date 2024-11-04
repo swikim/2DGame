@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting.Antlr3.Runtime.Tree;
-using UnityEditor.ShortcutManagement;
 using UnityEngine;
 
 public class TalkManager : MonoBehaviour
@@ -25,7 +24,7 @@ public class TalkManager : MonoBehaviour
     }
     string GetGoldText(){
         int gold = GameManager.Instance.gold;
-        return $"골드가 아직 {gold}개 모잘라";
+        return $"골드가 아직 {gold}개 있어";
     }
     public string GetTalk(int id,int talkIndex){
         if(talkIndex ==talkData[id].Length){

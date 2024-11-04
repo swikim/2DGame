@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Firebase.Database;
 using Unity.VisualScripting;
-using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 using UnityEngine.SceneManagement;
@@ -21,6 +20,7 @@ public class GameManager : MonoBehaviour
     public GameObject scanObject;
     public ObjectData objectData;
     public TalkManager talkManager;
+    public Button gameOverButton;
 
     public DialogueSystem dialogueSystem;
     
@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour
         }else{
             Destroy(gameObject);
         }
+        SceneManager.sceneLoaded += OnSceneLoaded;
     
     }
     // private void Start(){
@@ -60,6 +61,33 @@ public class GameManager : MonoBehaviour
     private void Start(){
         LoadGoldData();
     }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode){
+        GameObject canvas = GameObject.Find("Canvas");
+        if (canvas != null)
+        {
+            gameOverPanel = canvas.transform.Find("GameOverPanel")?.gameObject;
+            gameClearPanel = canvas.transform.Find("GameClear")?.gameObject;
+            if(gameOverButton ==null){
+                gameOverButton = gameOverPanel.transform.Find("GameOverButton").GetComponent<Button>();
+                if(gameOverButton != null){
+                gameOverButton.onClick.AddListener(PlayAgain);
+                }
+            }
+            
+        }
+
+        if (gameOverPanel != null&&gameClearPanel!=null)
+        {
+            gameOverPanel.SetActive(false);
+            gameClearPanel.SetActive(false);
+            Debug.Log("GameOverPanel을 찾았습니다.");
+        }
+        else
+        {
+            Debug.LogWarning("GameOverPanel을 찾을 수 없습니다.");
+        }
+        Debug.Log("새로운 씬이 로드되었습니다: " + scene.name);
+    }
     public void SetGameOver()
     {
         Invoke("ShowGameOverPanel",1f);
@@ -68,20 +96,20 @@ public class GameManager : MonoBehaviour
         Invoke("ShowClearPanel",1f);
     }
     public void ShowClearPanel(){
-        gameClearPanel = GameObject.Find("Gaceclear");
+        
         gameClearPanel.SetActive(true);
     }
-    public void ShowGameOverPanel(){
-        gameOverPanel = GameObject.Find("GameOverPanel");
-        
+    public void ShowGameOverPanel(){        
         gameOverPanel.SetActive(true);
     }
    public void PlayAgain(){
         SceneManager.LoadScene("SampleScene");
-        Debug.Log("onclicked");
     }
     public void ShowNotEough(){
         notEnoughGoldPanel.SetActive(true);
+    }
+    public void CloseNotEnough(){
+        notEnoughGoldPanel.SetActive(false);
     }
 
     public void Action(GameObject scanobj){
@@ -115,7 +143,6 @@ public class GameManager : MonoBehaviour
     private void UpdataGoldInDatabase(){
         if(FirebaseManager.Instance.databaseReference !=null){
             FirebaseManager.Instance.databaseReference.Child("test").Child("gold").SetValueAsync(gold);
-            Debug.Log("Succese Connected to DB");
         }
     }
     public void UpdateGoldUI(){
@@ -171,6 +198,16 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("데이터베이스에서 값을 가져오는 데 실패했습니다: " + task.Exception);
             }
         });
+    }
+    public void QuitGame()
+    {
+        // 에디터 환경에서는 플레이 모드 중지
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            // 빌드된 게임에서는 애플리케이션 종료
+            Application.Quit();
+        #endif
     }
 
     public static implicit operator GameManager(TestDDOB v)

@@ -11,6 +11,8 @@ public class Inventory : MonoBehaviour
         if(Instance != null){
             Destroy(gameObject);
             return;
+        }else{
+            DontDestroyOnLoad(gameObject);
         }
         Instance = this;
     }    
@@ -27,7 +29,7 @@ public class Inventory : MonoBehaviour
         get=>slotCnt;
         set{
             slotCnt = value;
-            onSlotCountChange.Invoke(slotCnt);
+            onSlotCountChange?.Invoke(slotCnt);
         }
     }
     void Start()
@@ -54,7 +56,7 @@ public class Inventory : MonoBehaviour
     public void RemoveItem(int _index){
         items.RemoveAt(_index);
         Debug.Log("remove");
-        onChangeItem.Invoke();
+        onChangeItem?.Invoke();
     }
     private void OnCollisionEnter2D(Collision2D col){
         if(col.gameObject.tag=="FieldItem"){

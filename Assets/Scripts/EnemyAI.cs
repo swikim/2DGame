@@ -32,10 +32,7 @@ public class EnemyAI : MonoBehaviour
         }
         doggyStatus = target.GetComponent<Dog>().GetStatus();
         enemyStatus = enemy.getStatus();
-        if(doggyStatus.nowHp<=0){
-            GameManager.Instance.ShowGameOverPanel();
-            return;
-        }
+       
         attackDelay -= Time.deltaTime;
         if (attackDelay < 0) attackDelay = 0;
 

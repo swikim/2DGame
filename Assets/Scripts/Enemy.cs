@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using TreeEditor;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,6 +8,7 @@ public class Enemy : MonoBehaviour
 {
     public Status status;
     public bool isDead = false;
+    public bool hurt = false;
     public Vector3 spawnVector;
     public UnitCode unitCode;
     public GameObject skillPrefab;
@@ -36,10 +36,11 @@ public class Enemy : MonoBehaviour
     {
         enemyAnimator = GetComponent<Animator>();
         if(canvas ==null){
-            canvas = GameObject.Find("canvas").GetComponent<Canvas>();
+            canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         }
         if(doggy ==null){
             doggy = GameObject.Find("Doggy").GetComponent<Dog>();
+            //return;
         }
         hpBar = Instantiate(prfHpBar,canvas.transform).GetComponent<RectTransform>();
         
@@ -65,8 +66,11 @@ public class Enemy : MonoBehaviour
 
         if(!hasExecuted){
             if(transform.position.y < minY){
-                Die();
-                hasExecuted = true;
+                if(gameObject.CompareTag("Boss")) BossDie();
+                else{
+                    Die();
+                    hasExecuted = true;
+                }
             }
         }
     }
@@ -74,9 +78,10 @@ public class Enemy : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D col){
         if(col.gameObject.CompareTag("Attack"))
         {
+            Debug.Log("Hurt trigger called");
+            enemyAnimator.SetTrigger("hurt");
             Attack attack = col.gameObject.GetComponent<Attack>();
             status.nowHp -= attack.damage;
-            Debug.Log(gameObject.tag+"ㄹㅇㅇ");
             if(status.nowHp <= 0){
                 if(gameObject.CompareTag("Boss"))
                 {
@@ -131,4 +136,10 @@ public class Enemy : MonoBehaviour
         return status;
     }
 
+    void HurtTrue(){
+        hurt = true;
+    }
+    void HurtFalse(){
+        hurt = false;
+    }
 }

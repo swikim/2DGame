@@ -13,8 +13,8 @@ public class MainCamera : MonoBehaviour
     public Vector2 maxLimit;
 
     void Start(){
-        offset = transform.position - player.position;
         player = FindObjectOfType<Dog>().transform;
+        offset = transform.position - player.position;
     }
     void LateUpdate()
     {
